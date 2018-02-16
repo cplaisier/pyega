@@ -78,8 +78,10 @@ def pretty_print_authorized_datasets(reply):
 def api_list_files_in_dataset(session, dataset):
     headers = {'Accept': 'application/json'}
     url = "https://ega.ebi.ac.uk/ega/rest/access/v2/datasets/{}/files?session={}".format(dataset, session)
+    print url
     r = requests.get(url, headers = headers)
     reply = r.json()
+    print reply
     if(debug):  print( json.dumps(reply, indent=4) )
     if reply['header']['userMessage'] != "OK":
         print("List files in dataset {} failed".format(dataset))
@@ -234,7 +236,7 @@ def download_request(req_ticket):
         remote_filename = res['fileName']
         remote_filesize = res['fileSize']
         print("Downloading {} ({} bytes)".format(remote_filename, remote_filesize))
-        local_filename = os.path.split(remote_filename)[1]
+        local_filename = '/media/cplaisier/PlaisierDrive/Genentech_exon_seq/'+os.path.split(remote_filename)[1]
 
         dl_ticket = res['ticket']
         api_download_ticket(dl_ticket, local_filename)
@@ -245,10 +247,11 @@ def api_download_ticket(ticket, local_filename):
     url = "http://ega.ebi.ac.uk/ega/rest/ds/v2/downloads/{}".format(ticket)
     if (debug): print("Requesting {}".format(url))
 
-    with open(local_filename, 'wb+') as fo:
+    with open(local_filename, 'wb') as fo:
         headers = {'Accept': 'application/octet-stream'}
-        r = requests.get(url, headers=headers)
-        fo.write(r.content)
+        r = requests.get(url, headers=headers, stream=True)
+        for chunk in r.iter_content(chunk_size=1000000):
+            fo.write(chunk)
 
 def main():
     print("pyEGA version {}".format(version))

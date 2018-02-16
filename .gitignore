@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+pyega.py~
+downloadDataset.py~
+*.json
+5141285_1_1.gne.fastq.gz.cip
+*.un~
+*.swp
